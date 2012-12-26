@@ -11,51 +11,85 @@ program
   .usage('[options] <source_dir> [destination_dir]')
   .option('--ignore <regexp>', 'Pattern for ignored files', RegExp)
   .option('--interval <ms>', 'How often files are checked for changes', 100)
+  .option('--no-watch', "Compile what needs to be compiled and exit")
   .parse(process.argv);
 
 var srcDir = program.args[0] || process.cwd()
-  , dstDir = program.args[1] || srcDir;
+  , dstDir = program.args[1] || srcDir
+  , pending = 0;
 
-watch.createMonitor(srcDir, { interval: program.interval }, function(monitor) {
-  function compileLess(file) {
-    var match = file.match(/^(.*)(\.[^\.]*)$/)
-      , base = match[1]
-      , ext = match[2]
-      , dstFile = path.join(dstDir, base.slice(srcDir.length) + '.css');
+var monitorOptions = {
+  interval: program.interval
+};
 
-    function notify(result) {
+function compileLess(file, dstFile, callback) {
+  function notify(result) {
+    console.log(file + ' -> ' + dstFile + ': ' + result.toUpperCase());
+    if (!callback) {
       growl(file + '\n-> ' + dstFile, {
         title: 'LESS',
         image: path.join(__dirname, '../images', result + '.svg')
       });
-      console.log(result + ': ' + file + ' -> ' + dstFile);
     }
+  }
 
-    if (ext !== '.less' || (options.ignore && options.ignore.test(file))) {
-      return;
+  function done(err) {
+    if (err) {
+      notify('error');
+      less.writeError(err);
+    } else {
+      notify('success');
     }
+    --pending;
+    if (callback) callback(err);
+  }
 
-    new less.Parser({
-      paths: path.dirname(file),
-      filename: file
-    }).parse(fs.readFileSync(file, 'utf-8'), function(err, tree) {
-      if (err) {
-        less.writeError(err);
-        notify('error');
-      } else {
-        try {
-          fs.writeFileSync(dstFile, tree.toCSS(), 'utf-8');
-          notify('success');
-        } catch (err) {
-          less.writeError(err);
-          notify('error');
-        }
+  ++pending;
+
+  new less.Parser({
+    paths: path.dirname(file),
+    filename: file
+  }).parse(fs.readFileSync(file, 'utf-8'), function(err, tree) {
+    if (err) {
+      done(err);
+    } else {
+      try {
+        fs.writeFileSync(dstFile, tree.toCSS(), 'utf-8');
+        done();
+      } catch (err) {
+        done(err);
       }
+    }
+  });
+}
+
+function takeAction(file, stat, callback) {
+  if (stat.isDirectory()) return;
+  // FIXME: when https://github.com/mikeal/watch/issues/40 is fixed, use
+  // filter in monitorOptions instead
+  if (!/\.less$/.test(file) || (program.ignore && program.ignore.test(file))) {
+    return;
+  }
+
+  var match = file.match(/^(.*)(\.[^\.]*)$/)
+  , base = match[1]
+  , ext = match[2]
+  , dstFile = path.join(dstDir, base.slice(srcDir.length) + '.css');
+
+  compileLess(file, dstFile, callback);
+}
+
+watch.createMonitor(srcDir, monitorOptions, function(monitor) {
+  monitor.on('changed', takeAction);
+  monitor.on('created', takeAction);
+  console.log('Monitoring files in ' + srcDir);
+
+  for (var file in monitor.files) {
+    takeAction(file, monitor.files[file], function(err) {
+      if (!program.watch && pending === 0) process.exit(err ? 1 : 0);
     });
   }
 
-  monitor.on('changed', compileLess);
-  monitor.on('created', compileLess);
-  console.log('Monitoring files in ' + srcDir);
+  if (!program.watch && pending === 0) process.exit(0);
 });
 
