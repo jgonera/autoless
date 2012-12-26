@@ -4,36 +4,36 @@ var fs = require('fs')
   , path = require('path')
   , watch = require('watch')
   , growl = require('growl')
-  , options = require('commander')
+  , program = require('commander')
   , less = require('less');
 
-options
-  .usage('[options]')
-  .option('--src <dir>', 'Directory with *.less files', __dirname)
-  .option('--dst <dir>', 'Directory with compiled *.css files', __dirname)
+program
+  .usage('[options] <source_dir> [destination_dir]')
   .option('--ignore <regexp>', 'Pattern for ignored files', RegExp)
   .option('--interval <ms>', 'How often files are checked for changes', 100)
   .parse(process.argv);
 
-watch.createMonitor(options.src, { interval: options.interval }, function(monitor) {
+var srcDir = program.args[0] || process.cwd()
+  , dstDir = program.args[1] || srcDir;
+
+watch.createMonitor(srcDir, { interval: program.interval }, function(monitor) {
   function compileLess(file) {
     var match = file.match(/^(.*)(\.[^\.]*)$/)
       , base = match[1]
       , ext = match[2]
-      , dstFile = path.join(options.dst, base.slice(options.src.length) + '.css');
+      , dstFile = path.join(dstDir, base.slice(srcDir.length) + '.css');
 
-    function notify(icon) {
+    function notify(result) {
       growl(file + '\n-> ' + dstFile, {
         title: 'LESS',
-        image: path.join(__dirname, '../images', icon + '.svg')
+        image: path.join(__dirname, '../images', result + '.svg')
       });
+      console.log(result + ': ' + file + ' -> ' + dstFile);
     }
 
     if (ext !== '.less' || (options.ignore && options.ignore.test(file))) {
       return;
     }
-
-    console.log(file + ' -> ' + dstFile);
 
     new less.Parser({
       paths: path.dirname(file),
@@ -56,6 +56,6 @@ watch.createMonitor(options.src, { interval: options.interval }, function(monito
 
   monitor.on('changed', compileLess);
   monitor.on('created', compileLess);
-  console.log('Monitoring files in ' + options.src);
+  console.log('Monitoring files in ' + srcDir);
 });
 
