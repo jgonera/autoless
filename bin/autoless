@@ -1,0 +1,61 @@
+#!/usr/bin/env nodejs
+
+var fs = require('fs')
+  , path = require('path')
+  , watch = require('watch')
+  , growl = require('growl')
+  , options = require('commander')
+  , less = require('less');
+
+options
+  .usage('[options]')
+  .option('--src <dir>', 'Directory with *.less files', __dirname)
+  .option('--dst <dir>', 'Directory with compiled *.css files', __dirname)
+  .option('--ignore <regexp>', 'Pattern for ignored files', RegExp)
+  .option('--interval <ms>', 'How often files are checked for changes', 100)
+  .parse(process.argv);
+
+watch.createMonitor(options.src, { interval: options.interval }, function(monitor) {
+  function compileLess(file) {
+    var match = file.match(/^(.*)(\.[^\.]*)$/)
+      , base = match[1]
+      , ext = match[2]
+      , dstFile = path.join(options.dst, base.slice(options.src.length) + '.css');
+
+    function notify(icon) {
+      growl(file + '\n-> ' + dstFile, {
+        title: 'LESS',
+        image: path.join(__dirname, '../images', icon + '.svg')
+      });
+    }
+
+    if (ext !== '.less' || (options.ignore && options.ignore.test(file))) {
+      return;
+    }
+
+    console.log(file + ' -> ' + dstFile);
+
+    new less.Parser({
+      paths: path.dirname(file),
+      filename: file
+    }).parse(fs.readFileSync(file, 'utf-8'), function(err, tree) {
+      if (err) {
+        less.writeError(err);
+        notify('error');
+      } else {
+        try {
+          fs.writeFileSync(dstFile, tree.toCSS(), 'utf-8');
+          notify('success');
+        } catch (err) {
+          less.writeError(err);
+          notify('error');
+        }
+      }
+    });
+  }
+
+  monitor.on('changed', compileLess);
+  monitor.on('created', compileLess);
+  console.log('Monitoring files in ' + options.src);
+});
+

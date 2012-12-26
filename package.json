@@ -1,0 +1,16 @@
+{
+  "name": "autoless",
+  "version": "0.0.1dev",
+  "description": "Another .less files watcher, but this time with growl notifications",
+  "keywords": ["less", "watcher", "auto"],
+  "author": "Juliusz Gonera <jgonera@gmail.com>",
+  "bin": { "autoless": "./bin/autoless" },
+  "engines": { "node": ">= 0.8.x" },
+  "repository": { "type": "git", "url": "https://github.com/jgonera/autoless.git" }
+  "dependencies": {
+    "watch": "0.5.1",
+    "growl": "1.6.1",
+    "commander": "1.1.1",
+    "less": "*"
+  }
+}
