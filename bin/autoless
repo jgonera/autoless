@@ -64,19 +64,19 @@ function compileLess(file, dstFile, callback) {
 }
 
 function takeAction(file, stat, callback) {
-  if (stat.isDirectory()) return;
   // FIXME: when https://github.com/mikeal/watch/issues/40 is fixed, use
   // filter in monitorOptions instead
   if (!/\.less$/.test(file) || (program.ignore && program.ignore.test(file))) {
     return;
   }
+  if (stat.isDirectory()) return;
 
   var match = file.match(/^(.*)(\.[^\.]*)$/)
   , base = match[1]
   , ext = match[2]
   , dstFile = path.join(dstDir, base.slice(srcDir.length) + '.css');
 
-  compileLess(file, dstFile, callback);
+  compileLess(file, dstFile, typeof callback === 'function' ? callback : null);
 }
 
 watch.createMonitor(srcDir, monitorOptions, function(monitor) {
