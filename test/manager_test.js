@@ -53,6 +53,17 @@ describe("Manager", function() {
           done();
         });
       });
+
+      it("fires checked event for each file", function(done) {
+        var spy = sinon.spy();
+        manager.on("checked", spy);
+
+        manager.compileAll(function() {
+          spy.calledWith('success', 'test/less/main.less', 'test/css/main.css').should.be.true;
+          spy.calledWith('skipped', 'test/less/common.less').should.be.true;
+          done();
+        });
+      })
     });
 
     describe("when errors", function() {
@@ -66,6 +77,16 @@ describe("Manager", function() {
           done();
         });
       });
+
+      it("fires checked event for each file", function(done) {
+        var spy = sinon.spy();
+        manager.on("checked", spy);
+
+        manager.compileAll(function() {
+          spy.calledWith('error', 'test/less/error.less', 'test/css/error.css').should.be.true;
+          done();
+        });
+      })
     });
   });
 
@@ -89,6 +110,16 @@ describe("Manager", function() {
           done();
         });
       });
+
+      it("fires checked event for the file", function(done) {
+        var spy = sinon.spy();
+        manager.on("checked", spy);
+
+        manager.check('test/less/main.less', function() {
+          spy.alwaysCalledWith('success', 'test/less/main.less', 'test/css/main.css').should.be.true;
+          done();
+        });
+      })
     });
 
     describe("when file is imported", function() {
@@ -100,13 +131,24 @@ describe("Manager", function() {
         });
       });
 
-      it("checks its dependencies", function(done) {
-        var spy = sinon.spy(manager, 'check');
+      it("compiles its dependencies", function(done) {
+        var spy = sinon.spy(manager.files['test/less/main.less'], 'compile');
         manager.check('test/less/common.less', function() {
-          spy.calledWith('test/less/main.less').should.be.true;
+          spy.called.should.be.true;
           done();
         });
       });
+
+      it("fires checked event for files", function(done) {
+        var spy = sinon.spy();
+        manager.on("checked", spy);
+
+        manager.check('test/less/common.less', function() {
+          spy.calledWith('success', 'test/less/main.less', 'test/css/main.css').should.be.true;
+          spy.calledWith('skipped', 'test/less/common.less').should.be.true;
+          done();
+        });
+      })
     });
   });
 });

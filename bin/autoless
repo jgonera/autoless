@@ -1,15 +1,14 @@
 #!/usr/bin/env nodejs
 
-var path = require('path')
-  , watch = require('watch')
-  , growl = require('growl')
-  , program = require('commander')
-  , less = require('less')
-  , Manager = require('../lib/manager');
+var path = require('path');
+var watch = require('watch');
+var growl = require('growl');
+var program = require('commander');
+var less = require('less');
+var Manager = require('../lib/manager');
 
 program
   .usage('[options] <source_dir> [destination_dir]')
-  .option('--ignore <regexp>', 'Pattern for ignored files', RegExp)
   .option('--interval <ms>', 'How often files are checked for changes', 100)
   .option('--no-watch', "Compile what needs to be compiled and exit")
   .parse(process.argv);
@@ -21,14 +20,31 @@ var monitorOptions = {
   interval: program.interval
 };
 
+var statusChar = {
+  'success': '✓',
+  'error': '✖',
+  'skipped': 'o'
+};
+
+var colors = {
+  'success': 32,
+  'error': 31,
+  'skipped': 36
+};
+
 var manager = new Manager(srcDir, dstDir);
 
-function log(file, dstFile, result) {
-  console.log(file + ' -> ' + dstFile + ': ' + result.toUpperCase());
+function color(status, str) {
+  return '\u001b[' + colors[status] + 'm' + str + '\u001b[0m';
 }
 
-function notify(file, dstFile, result) {
-  growl(file + '\n-> ' + dstFile, {
+function log(status, file, dstFile) {
+  dstFile = dstFile || '';
+  console.log(color(status, '%s %s -> %s'), statusChar[status], file, dstFile);
+}
+
+function notify(result, file, dstFile) {
+  growl(file + ' -> ' + dstFile, {
     title: 'LESS',
     image: path.join(__dirname, '../images', result + '.svg')
   });
@@ -37,12 +53,11 @@ function notify(file, dstFile, result) {
 // FIXME: when https://github.com/mikeal/watch/issues/40 is fixed, use
 // filter in monitorOptions instead
 function fileFilter(file) {
-  return /\.less$/.test(file) && !(program.ignore && program.ignore.test(file));
+  return /\.less$/.test(file);
 }
 
 function check(file) {
   if (fileFilter(file)) {
-  console.log(file);
     manager.check(file);
   }
 }
@@ -56,8 +71,8 @@ watch.createMonitor(srcDir, monitorOptions, function(monitor) {
   console.log('Finding files...');
 
   manager.addFiles(files, function() {
-    manager.compileAll(function(err) {
-      if (!program.watch) process.exit(err ? 1 : 0);
+    manager.compileAll(function(errors) {
+      if (!program.watch) process.exit(errors);
 
       monitor.on('changed', check);
       monitor.on('created', check);

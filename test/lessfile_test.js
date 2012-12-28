@@ -53,7 +53,7 @@ describe("LessFile", function() {
     it("saves css file", function(done) {
       lessFile.compile(function(err) {
         fs.existsSync('test/less/main.css').should.be.true;
-        fs.readFileSync('test/less/main.css').should.include('text-decoration');
+        fs.readFileSync('test/less/main.css', 'utf-8').should.include('text-decoration');
       });
       done();
     });
