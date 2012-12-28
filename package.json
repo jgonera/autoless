@@ -6,11 +6,16 @@
   "author": "Juliusz Gonera <jgonera@gmail.com>",
   "bin": { "autoless": "./bin/autoless" },
   "engines": { "node": ">= 0.8.x" },
-  "repository": { "type": "git", "url": "https://github.com/jgonera/autoless.git" }
+  "repository": { "type": "git", "url": "https://github.com/jgonera/autoless.git" },
   "dependencies": {
     "watch": "0.5.1",
     "growl": "1.6.1",
     "commander": "1.1.1",
     "less": "*"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "chai": "*",
+    "sinon": "*"
   }
 }

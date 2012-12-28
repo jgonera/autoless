@@ -1,11 +1,11 @@
 #!/usr/bin/env nodejs
 
-var fs = require('fs')
-  , path = require('path')
+var path = require('path')
   , watch = require('watch')
   , growl = require('growl')
   , program = require('commander')
-  , less = require('less');
+  , less = require('less')
+  , Manager = require('../lib/manager');
 
 program
   .usage('[options] <source_dir> [destination_dir]')
@@ -15,81 +15,57 @@ program
   .parse(process.argv);
 
 var srcDir = program.args[0] || process.cwd()
-  , dstDir = program.args[1] || srcDir
-  , pending = 0;
+  , dstDir = program.args[1] || srcDir;
 
 var monitorOptions = {
   interval: program.interval
 };
 
-function compileLess(file, dstFile, callback) {
-  function notify(result) {
-    console.log(file + ' -> ' + dstFile + ': ' + result.toUpperCase());
-    if (!callback) {
-      growl(file + '\n-> ' + dstFile, {
-        title: 'LESS',
-        image: path.join(__dirname, '../images', result + '.svg')
-      });
-    }
-  }
+var manager = new Manager(srcDir, dstDir);
 
-  function done(err) {
-    if (err) {
-      notify('error');
-      less.writeError(err);
-    } else {
-      notify('success');
-    }
-    --pending;
-    if (callback) callback(err);
-  }
+function log(file, dstFile, result) {
+  console.log(file + ' -> ' + dstFile + ': ' + result.toUpperCase());
+}
 
-  ++pending;
-
-  new less.Parser({
-    paths: path.dirname(file),
-    filename: file
-  }).parse(fs.readFileSync(file, 'utf-8'), function(err, tree) {
-    if (err) {
-      done(err);
-    } else {
-      try {
-        fs.writeFileSync(dstFile, tree.toCSS(), 'utf-8');
-        done();
-      } catch (err) {
-        done(err);
-      }
-    }
+function notify(file, dstFile, result) {
+  growl(file + '\n-> ' + dstFile, {
+    title: 'LESS',
+    image: path.join(__dirname, '../images', result + '.svg')
   });
 }
 
-function takeAction(file, stat, callback) {
-  // FIXME: when https://github.com/mikeal/watch/issues/40 is fixed, use
-  // filter in monitorOptions instead
-  if (!/\.less$/.test(file) || (program.ignore && program.ignore.test(file))) {
-    return;
+// FIXME: when https://github.com/mikeal/watch/issues/40 is fixed, use
+// filter in monitorOptions instead
+function fileFilter(file) {
+  return /\.less$/.test(file) && !(program.ignore && program.ignore.test(file));
+}
+
+function check(file) {
+  if (fileFilter(file)) {
+  console.log(file);
+    manager.check(file);
   }
-  if (stat.isDirectory()) return;
-
-  var match = file.match(/^(.*)(\.[^\.]*)$/)
-  , base = match[1]
-  , ext = match[2]
-  , dstFile = path.join(dstDir, base.slice(srcDir.length) + '.css');
-
-  compileLess(file, dstFile, typeof callback === 'function' ? callback : null);
 }
 
 watch.createMonitor(srcDir, monitorOptions, function(monitor) {
-  monitor.on('changed', takeAction);
-  monitor.on('created', takeAction);
-  console.log('Monitoring files in ' + srcDir);
+  var files = Object.keys(monitor.files).filter(fileFilter);
 
-  for (var file in monitor.files) {
-    takeAction(file, monitor.files[file], function(err) {
-      if (!program.watch && pending === 0) process.exit(err ? 1 : 0);
+  manager.on('lessError', less.writeError);
+  manager.on('checked', log);
+
+  console.log('Finding files...');
+
+  manager.addFiles(files, function() {
+    manager.compileAll(function(err) {
+      if (!program.watch) process.exit(err ? 1 : 0);
+
+      monitor.on('changed', check);
+      monitor.on('created', check);
+
+      manager.on('checked', notify);
+
+      console.log('Monitoring files in ' + srcDir);
     });
-  }
-
-  if (!program.watch && pending === 0) process.exit(0);
+  });
 });
 
