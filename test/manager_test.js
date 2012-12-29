@@ -5,7 +5,8 @@ describe("Manager", function() {
   var manager;
   var files = [
     'test/less/main.less',
-    'test/less/common.less'
+    'test/less/common.less',
+    'test/less/variables.less'
   ];
   var filesError = files.concat('test/less/error.less');
 
@@ -146,6 +147,38 @@ describe("Manager", function() {
         manager.check('test/less/common.less', function() {
           spy.calledWith('success', 'test/less/main.less', 'test/css/main.css').should.be.true;
           spy.calledWith('skipped', 'test/less/common.less').should.be.true;
+          done();
+        });
+      })
+    });
+
+    describe("when file is imported (nested dependencies)", function() {
+      it("does not compile imported files", function(done) {
+        var commmonSpy = sinon.spy(manager.files['test/less/common.less'], 'compile');
+        var variablesSpy = sinon.spy(manager.files['test/less/variables.less'], 'compile');
+        manager.check('test/less/variables.less', function() {
+          commonSpy.called.should.be.false;
+          variablesSpy.called.should.be.false;
+          done();
+        });
+      });
+
+      it("compiles its dependencies", function(done) {
+        var spy = sinon.spy(manager.files['test/less/main.less'], 'compile');
+        manager.check('test/less/variables.less', function() {
+          spy.called.should.be.true;
+          done();
+        });
+      });
+
+      it("fires checked event for files", function(done) {
+        var spy = sinon.spy();
+        manager.on("checked", spy);
+
+        manager.check('test/less/variables.less', function() {
+          spy.calledWith('success', 'test/less/main.less', 'test/css/main.css').should.be.true;
+          spy.calledWith('skipped', 'test/less/common.less').should.be.true;
+          spy.calledWith('skipped', 'test/less/variables.less').should.be.true;
           done();
         });
       })

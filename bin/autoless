@@ -58,6 +58,7 @@ function fileFilter(file) {
 
 function check(file) {
   if (fileFilter(file)) {
+    console.log('Change detected in ' + file);
     manager.check(file);
   }
 }
