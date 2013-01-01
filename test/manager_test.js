@@ -154,7 +154,7 @@ describe("Manager", function() {
 
     describe("when file is imported (nested dependencies)", function() {
       it("does not compile imported files", function(done) {
-        var commmonSpy = sinon.spy(manager.files['test/less/common.less'], 'compile');
+        var commonSpy = sinon.spy(manager.files['test/less/common.less'], 'compile');
         var variablesSpy = sinon.spy(manager.files['test/less/variables.less'], 'compile');
         manager.check('test/less/variables.less', function() {
           commonSpy.called.should.be.false;
