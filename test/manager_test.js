@@ -55,9 +55,9 @@ describe("Manager", function() {
         });
       });
 
-      it("fires checked event for each file", function(done) {
+      it("fires check event for each file", function(done) {
         var spy = sinon.spy();
-        manager.on("checked", spy);
+        manager.on("check", spy);
 
         manager.compileAll(function() {
           spy.calledWith('success', 'test/less/main.less', 'test/css/main.css').should.be.true;
@@ -79,9 +79,9 @@ describe("Manager", function() {
         });
       });
 
-      it("fires checked event for each file", function(done) {
+      it("fires check event for each file", function(done) {
         var spy = sinon.spy();
-        manager.on("checked", spy);
+        manager.on("check", spy);
 
         manager.compileAll(function() {
           spy.calledWith('error', 'test/less/error.less', 'test/css/error.css').should.be.true;
@@ -112,15 +112,16 @@ describe("Manager", function() {
         });
       });
 
-      it("fires checked event for the file", function(done) {
+      it("fires check event for the file", function(done) {
         var spy = sinon.spy();
-        manager.on("checked", spy);
+        manager.on("check", spy);
 
         manager.check('test/less/main.less', function() {
           spy.alwaysCalledWith('success', 'test/less/main.less', 'test/css/main.css').should.be.true;
           done();
         });
-      })
+      });
+
     });
 
     describe("when file is imported", function() {
@@ -140,16 +141,16 @@ describe("Manager", function() {
         });
       });
 
-      it("fires checked event for files", function(done) {
+      it("fires check event for files", function(done) {
         var spy = sinon.spy();
-        manager.on("checked", spy);
+        manager.on("check", spy);
 
         manager.check('test/less/common.less', function() {
           spy.calledWith('success', 'test/less/main.less', 'test/css/main.css').should.be.true;
           spy.calledWith('skipped', 'test/less/common.less').should.be.true;
           done();
         });
-      })
+      });
     });
 
     describe("when file is imported (nested dependencies)", function() {
@@ -171,9 +172,9 @@ describe("Manager", function() {
         });
       });
 
-      it("fires checked event for files", function(done) {
+      it("fires check event for files", function(done) {
         var spy = sinon.spy();
-        manager.on("checked", spy);
+        manager.on("check", spy);
 
         manager.check('test/less/variables.less', function() {
           spy.calledWith('success', 'test/less/main.less', 'test/css/main.css').should.be.true;
@@ -181,7 +182,7 @@ describe("Manager", function() {
           spy.calledWith('skipped', 'test/less/variables.less').should.be.true;
           done();
         });
-      })
+      });
     });
   });
 });

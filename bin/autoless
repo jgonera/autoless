@@ -67,7 +67,7 @@ watch.createMonitor(srcDir, monitorOptions, function(monitor) {
   var files = Object.keys(monitor.files).filter(fileFilter);
 
   manager.on('lessError', less.writeError);
-  manager.on('checked', log);
+  manager.on('check', log);
 
   console.log('Finding files...');
 
@@ -78,7 +78,7 @@ watch.createMonitor(srcDir, monitorOptions, function(monitor) {
       monitor.on('changed', check);
       monitor.on('created', check);
 
-      manager.on('checked', notify);
+      manager.on('check', notify);
 
       console.log('Monitoring files in ' + srcDir);
     });
