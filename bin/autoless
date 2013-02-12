@@ -77,7 +77,7 @@ function notify(summary) {
 // FIXME: when https://github.com/mikeal/watch/issues/40 is fixed, use
 // filter in monitorOptions instead
 function fileFilter(file) {
-  return /\.less$/.test(file);
+  return /\.less$|\.lessignore$/.test(file);
 }
 
 function check(file) {
@@ -92,6 +92,12 @@ watch.createMonitor(srcDir, monitorOptions, function(monitor) {
 
   manager.on('lessError', less.writeError);
   manager.on('check', log);
+  manager.on('ignore', function(file) {
+    console.log(file + ' created, ignoring changes.');
+  });
+  monitor.on('resume', function(file) {
+    console.log(file + ' removed, resuming monitoring.');
+  });
 
   console.log('Finding files...');
 
@@ -101,6 +107,7 @@ watch.createMonitor(srcDir, monitorOptions, function(monitor) {
 
       monitor.on('changed', check);
       monitor.on('created', check);
+      monitor.on('removed', manager.remove.bind(manager));
 
       manager.on('checkSummary', notify);
 

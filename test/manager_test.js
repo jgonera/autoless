@@ -246,5 +246,43 @@ describe("Manager", function() {
         });
       });
     });
+
+    it("ignores further changes when .lessignore detected", function(done) {
+      var spy = sinon.spy();
+      manager.on("check", spy);
+      manager.check('test/less/.lessignore');
+      manager.check('test/less/main.less');
+      setTimeout(function() {
+        spy.called.should.be.false;
+        done();
+      }, 50);
+    });
+  });
+
+  describe("#remove", function() {
+    beforeEach(function(done) {
+      manager.addFiles(files, done);
+    });
+
+    it("removes file", function() {
+      manager.remove('test/less/variables.less');
+      should.not.exist(manager.files['test/less/variables.less']);
+    });
+
+    it("updates dependencies for files", function() {
+      manager.remove('test/less/variables.less');
+      should.not.exist(manager.dependencies['test/less/variables.less']);
+    });
+
+    it("resumes monitoring when .lessignore removed", function(done) {
+      var spy = sinon.spy();
+      manager.on("check", spy);
+      manager.check('test/less/.lessignore');
+      manager.remove('test/less/.lessignore');
+      manager.check('test/less/main.less', function() {
+        spy.called.should.be.true;
+        done();
+      });
+    })
   });
 });
