@@ -60,11 +60,32 @@ describe("Manager", function() {
         manager.on("check", spy);
 
         manager.compileAll(function() {
-          spy.calledWith('success', 'test/less/main.less', 'test/css/main.css').should.be.true;
-          spy.calledWith('skipped', 'test/less/common.less').should.be.true;
+          spy.calledWithMatch(
+            { status: 'success', src: 'test/less/main.less', dst: 'test/css/main.css' }
+          ).should.be.true;
+          spy.calledWithMatch(
+            { status: 'skipped', src: 'test/less/common.less' }
+          ).should.be.true;
+          spy.calledWithMatch(
+            { status: 'skipped', src: 'test/less/variables.less' }
+          ).should.be.true;
           done();
         });
-      })
+      });
+
+      it("fires checkSummary event after processing all files", function(done) {
+        var spy = sinon.spy();
+        manager.on("checkSummary", spy);
+
+        manager.compileAll(function() {
+          spy.calledWithMatch([
+            { status: 'skipped', src: 'test/less/common.less' },
+            { status: 'skipped', src: 'test/less/variables.less' },
+            { status: 'success', src: 'test/less/main.less', dst: 'test/css/main.css' }
+          ]).should.be.true;
+          done();
+        });
+      });
     });
 
     describe("when errors", function() {
@@ -84,7 +105,9 @@ describe("Manager", function() {
         manager.on("check", spy);
 
         manager.compileAll(function() {
-          spy.calledWith('error', 'test/less/error.less', 'test/css/error.css').should.be.true;
+          spy.calledWithMatch(
+            { status: 'error', src: 'test/less/error.less', dst: 'test/css/error.css' }
+          ).should.be.true;
           done();
         });
       })
@@ -117,7 +140,9 @@ describe("Manager", function() {
         manager.on("check", spy);
 
         manager.check('test/less/main.less', function() {
-          spy.alwaysCalledWith('success', 'test/less/main.less', 'test/css/main.css').should.be.true;
+          spy.alwaysCalledWithMatch(
+            { status: 'success', src: 'test/less/main.less', dst: 'test/css/main.css' }
+          ).should.be.true;
           done();
         });
       });
@@ -146,8 +171,25 @@ describe("Manager", function() {
         manager.on("check", spy);
 
         manager.check('test/less/common.less', function() {
-          spy.calledWith('success', 'test/less/main.less', 'test/css/main.css').should.be.true;
-          spy.calledWith('skipped', 'test/less/common.less').should.be.true;
+          spy.calledWithMatch(
+            { status: 'success', src: 'test/less/main.less', dst: 'test/css/main.css' }
+          ).should.be.true;
+          spy.calledWith(
+            { status: 'skipped', src: 'test/less/common.less' }
+          ).should.be.true;
+          done();
+        });
+      });
+
+      it("fires checkSummary event after processing all files", function(done) {
+        var spy = sinon.spy();
+        manager.on("checkSummary", spy);
+
+        manager.check('test/less/common.less', function() {
+          spy.calledWithMatch([
+            { status: 'skipped', src: 'test/less/common.less' },
+            { status: 'success', src: 'test/less/main.less', dst: 'test/css/main.css' }
+          ]).should.be.true;
           done();
         });
       });
@@ -177,9 +219,29 @@ describe("Manager", function() {
         manager.on("check", spy);
 
         manager.check('test/less/variables.less', function() {
-          spy.calledWith('success', 'test/less/main.less', 'test/css/main.css').should.be.true;
-          spy.calledWith('skipped', 'test/less/common.less').should.be.true;
-          spy.calledWith('skipped', 'test/less/variables.less').should.be.true;
+          spy.calledWithMatch(
+            { status: 'success', src: 'test/less/main.less', dst: 'test/css/main.css' }
+          ).should.be.true;
+          spy.calledWithMatch(
+            { status: 'skipped', src: 'test/less/common.less' }
+          ).should.be.true;
+          spy.calledWithMatch(
+            { status: 'skipped', src: 'test/less/variables.less' }
+          ).should.be.true;
+          done();
+        });
+      });
+
+      it("fires checkSummary event after processing all files", function(done) {
+        var spy = sinon.spy();
+        manager.on("checkSummary", spy);
+
+        manager.check('test/less/variables.less', function() {
+          spy.calledWithMatch([
+            { status: 'skipped', src: 'test/less/variables.less' },
+            { status: 'skipped', src: 'test/less/common.less' },
+            { status: 'success', src: 'test/less/main.less', dst: 'test/css/main.css' }
+          ]).should.be.true;
           done();
         });
       });

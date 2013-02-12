@@ -1,6 +1,8 @@
 #!/usr/bin/env nodejs
+// vim: set ft=javascript :
 
 var path = require('path');
+var util = require('util');
 var watch = require('watch');
 var growl = require('growl');
 var program = require('commander');
@@ -13,8 +15,8 @@ program
   .option('--no-watch', "Compile what needs to be compiled and exit")
   .parse(process.argv);
 
-var srcDir = program.args[0] || process.cwd()
-  , dstDir = program.args[1] || srcDir;
+var srcDir = program.args[0] || process.cwd();
+var dstDir = program.args[1] || srcDir;
 
 var monitorOptions = {
   interval: program.interval
@@ -32,19 +34,41 @@ var colors = {
   'skipped': 36
 };
 
+var resultMessage = {
+  'success': '%d files successfully compiled.',
+  'error': '%d files have errors.'
+};
+
 var manager = new Manager(srcDir, dstDir);
 
 function color(status, str) {
-  return '\u001b[' + colors[status] + 'm' + str + '\u001b[0m';
+  return '\u001b[' + colors[status] + 'm%s\u001b[0m';
 }
 
-function log(status, file, dstFile) {
-  dstFile = dstFile || '';
-  console.log(color(status, '%s %s -> %s'), statusChar[status], file, dstFile);
+function status(info) {
+  return statusChar[info.status] + ' ' + info.src + (info.dst ? ' -> ' + info.dst : '');
 }
 
-function notify(result, file, dstFile) {
-  growl(file + ' -> ' + dstFile, {
+function log(info) {
+  console.log(color(info.status), status(info));
+}
+
+function notify(summary) {
+  var message = [], result = 'success';
+  summary.forEach(function(info) {
+    if (info.status === 'error') {
+      result = 'error';
+      // don't show dst in notifications
+      info.dst = null;
+      message.push(status(info));
+    }
+  });
+  message.unshift(util.format(
+    resultMessage[result],
+    result === 'success' ? summary.length : message.length
+  ));
+
+  growl(message.join('\n'), {
     title: 'LESS',
     image: path.join(__dirname, '../images', result + '.svg')
   });
@@ -78,7 +102,7 @@ watch.createMonitor(srcDir, monitorOptions, function(monitor) {
       monitor.on('changed', check);
       monitor.on('created', check);
 
-      manager.on('check', notify);
+      manager.on('checkSummary', notify);
 
       console.log('Monitoring files in ' + srcDir);
     });
