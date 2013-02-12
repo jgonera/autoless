@@ -95,7 +95,7 @@ watch.createMonitor(srcDir, monitorOptions, function(monitor) {
   manager.on('ignore', function(file) {
     console.log(file + ' created, ignoring changes.');
   });
-  monitor.on('resume', function(file) {
+  manager.on('resume', function(file) {
     console.log(file + ' removed, resuming monitoring.');
   });
 
