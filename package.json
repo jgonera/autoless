@@ -1,6 +1,6 @@
 {
   "name": "autoless",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Another .less files watcher, but this time with growl notifications",
   "keywords": ["less", "watcher", "auto"],
   "author": "Juliusz Gonera <jgonera@gmail.com>",
