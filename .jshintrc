@@ -1,0 +1,10 @@
+{
+	"node": true,
+	"strict": false,
+	"eqeqeq": true,
+	"forin": false,
+	"trailing": true,
+	"undef" : true,
+	"unused": true,
+	"supernew": true
+}

@@ -1,4 +1,5 @@
 test:
-	node_modules/mocha/bin/mocha --require test/env
+	node_modules/.bin/jshint lib/* --config .jshintrc
+	node_modules/.bin/mocha --reporter spec --require test/env
 
 .PHONY: test
