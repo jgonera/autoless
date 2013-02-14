@@ -255,7 +255,7 @@ describe("Manager", function() {
       setTimeout(function() {
         spy.called.should.be.false;
         done();
-      }, 50);
+      }, 0);
     });
   });
 
