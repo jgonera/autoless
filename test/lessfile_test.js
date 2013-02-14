@@ -30,7 +30,7 @@ describe("LessFile", function() {
       it("returns an error", function(done) {
         lessFile.parse(function(err) {
           should.exist(err);
-          err.message.should.match(/^Syntax Error/);
+          err.filename.should.equal('test/less/error.less');
           done();
         });
       });

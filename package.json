@@ -11,7 +11,7 @@
     "watch": "0.5.1",
     "growl": "1.6.1",
     "commander": "1.1.1",
-    "less": "*"
+    "less": "1.3.3"
   },
   "devDependencies": {
     "mocha": "*",
