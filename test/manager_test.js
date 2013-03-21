@@ -29,6 +29,13 @@ describe("Manager", function() {
         done();
       });
     });
+
+    it("skips .lessignore", function(done) {
+      manager.addFiles(['test/less/.lessignore'], function() {
+        manager.files.should.be.empty;
+        done();
+      });
+    });
   });
 
   describe("#compileAll", function() {
