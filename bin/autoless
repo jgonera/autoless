@@ -18,17 +18,9 @@ program
 var srcDir = program.args[0] || process.cwd();
 var dstDir = program.args[1] || srcDir;
 
+// Replace a single '.' input as process.cwd() which is what they meant
 srcDir = srcDir.replace(/^\.$/, process.cwd());
 dstDir = dstDir.replace(/^\.$/, process.cwd());
-
-
-console.log('==========');
-
-console.log('srcdir', srcDir);
-console.log('dstdir', dstDir);
-
-console.log('==========');
-
 
 var monitorOptions = {
   interval: program.interval
