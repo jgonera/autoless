@@ -58,6 +58,13 @@ describe("LessFile", function() {
       });
     });
 
+    it("doesn't compile a source map", function(done) {
+      lessFile.compile({}, function(err) {
+        fs.existsSync('test/less/main.css.map').should.be.false;
+        done();
+      });
+    });
+
     it("compiles a source map", function(done) {
       lessFile.compile({sourceMap: true}, function(err) {
         fs.existsSync('test/less/main.css.map').should.be.true;
