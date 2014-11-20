@@ -11,7 +11,7 @@
     "watch": "0.9.0",
     "growl": "1.7.0",
     "commander": "2.1.0",
-    "less": "1.6.3"
+    "less": "1.7.5"
   },
   "devDependencies": {
     "jshint": "*",
