@@ -66,7 +66,7 @@ describe("LessFile", function() {
     });
 
     it("compiles a source map", function(done) {
-      lessFile.compile({sourceMap: true}, function(err) {
+      lessFile.compile({ sourceMap: true }, function(err) {
         fs.existsSync('test/less/main.css.map').should.be.true;
         fs.readFileSync('test/less/main.css', 'utf-8').should.include('sourceMappingURL');
         fs.readFileSync('test/less/main.css.map', 'utf-8').should.include('{"version":3,');
