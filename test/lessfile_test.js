@@ -47,15 +47,32 @@ describe("LessFile", function() {
     });
 
     it("doesn't return an error", function(done) {
-      lessFile.compile(done);
+      lessFile.compile({}, done);
     });
 
     it("saves css file", function(done) {
-      lessFile.compile(function(err) {
+      lessFile.compile({}, function(err) {
         fs.existsSync('test/less/main.css').should.be.true;
         fs.readFileSync('test/less/main.css', 'utf-8').should.include('text-decoration');
+        done();
       });
-      done();
+    });
+
+    it("doesn't compile a source map", function(done) {
+      lessFile.compile({}, function(err) {
+        fs.existsSync('test/less/main.css.map').should.be.false;
+        done();
+      });
+    });
+
+    it("compiles a source map", function(done) {
+      lessFile.compile({ sourceMap: true }, function(err) {
+        fs.existsSync('test/less/main.css.map').should.be.true;
+        fs.readFileSync('test/less/main.css', 'utf-8').should.include('sourceMappingURL');
+        fs.readFileSync('test/less/main.css.map', 'utf-8').should.include('{"version":3,');
+        fs.unlink('test/less/main.css.map');
+        done();
+      });
     });
   });
 });

@@ -11,7 +11,7 @@ describe("Manager", function() {
   var filesError = files.concat('test/less/error.less');
 
   beforeEach(function() {
-    manager = new Manager('test/less', 'test/css');
+    manager = new Manager('test/less', 'test/css', {});
   });
 
   describe("#addFiles", function() {

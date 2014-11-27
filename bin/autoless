@@ -13,6 +13,7 @@ program
   .usage('[options] <source_dir> [destination_dir]')
   .option('--interval <ms>', 'How often files are checked for changes', 100)
   .option('--no-watch', "Compile what needs to be compiled and exit")
+  .option('--source-map', "Generate source map files next to css files")
   .parse(process.argv);
 
 var srcDir = program.args[0] || process.cwd();
@@ -20,6 +21,9 @@ var dstDir = program.args[1] || srcDir;
 
 var monitorOptions = {
   interval: program.interval
+};
+var compileOptions = {
+  sourceMap: program.sourceMap
 };
 
 var statusChar = {
@@ -39,7 +43,7 @@ var resultMessage = {
   'error': '%d files have errors.'
 };
 
-var manager = new Manager(srcDir, dstDir);
+var manager = new Manager(srcDir, dstDir, compileOptions);
 
 function color(status, str) {
   return '\u001b[' + colors[status] + 'm%s\u001b[0m';
