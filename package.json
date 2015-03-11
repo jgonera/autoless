@@ -11,7 +11,8 @@
     "watch": "0.9.0",
     "growl": "1.7.0",
     "commander": "2.1.0",
-    "less": "1.7.5"
+    "less": "1.7.5",
+    "autoprefixer-core": "^5.1.7"
   },
   "devDependencies": {
     "jshint": "*",
