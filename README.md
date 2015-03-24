@@ -14,6 +14,16 @@ Usage
 
     $ npm install autoless -g
     $ autoless --help
+    
+      Usage: autoless [options] <source_dir> [destination_dir]
+  
+      Options:
+
+        -h, --help               output usage information
+        --interval <ms>          How often files are checked for changes
+        --no-watch               Compile what needs to be compiled and exit
+        --source-map             Generate source map files next to css files
+        --autoprefix <browsers>  Browserslist query, e.g., '> 1%, last 2 versions'
 
 
 Pausing and resuming
