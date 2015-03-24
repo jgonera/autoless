@@ -74,5 +74,21 @@ describe("LessFile", function() {
         done();
       });
     });
+
+    it("generates prefixes", function(done) {
+      lessFile.compile({ autoprefix: 'last 2 versions' }, function(err) {
+        fs.existsSync('test/less/main.css').should.be.true;
+        fs.readFileSync('test/less/main.css', 'utf-8').should.include('-webkit-transform');
+        done();
+      });
+    });
+
+    it("doesn't generate prefixes", function(done) {
+      lessFile.compile({}, function(err) {
+        fs.existsSync('test/less/main.css').should.be.true;
+        fs.readFileSync('test/less/main.css', 'utf-8').should.not.include('-webkit-transform');
+        done();
+      });
+    });
   });
 });

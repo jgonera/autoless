@@ -14,6 +14,7 @@ program
   .option('--interval <ms>', 'How often files are checked for changes', 100)
   .option('--no-watch', "Compile what needs to be compiled and exit")
   .option('--source-map', "Generate source map files next to css files")
+  .option('--autoprefix <browsers>', "Browserslist query, e.g., '> 1%, last 2 versions'")
   .parse(process.argv);
 
 var srcDir = program.args[0] || process.cwd();
@@ -23,7 +24,8 @@ var monitorOptions = {
   interval: program.interval
 };
 var compileOptions = {
-  sourceMap: program.sourceMap
+  sourceMap: program.sourceMap,
+  autoprefix: program.autoprefix
 };
 
 var statusChar = {
