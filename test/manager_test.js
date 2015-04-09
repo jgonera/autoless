@@ -62,6 +62,16 @@ describe("Manager", function() {
         });
       });
 
+      it("compiles files that are imported when option is set", function(done) {
+        var spy = sinon.spy(manager.files['test/less/common.less'], 'compile');
+        manager.compileOptions.compileImports = true;
+        manager.compileAll(function() {
+          spy.calledOnce.should.be.true;
+          done();
+        });
+      });
+
+
       it("fires check event for each file", function(done) {
         var spy = sinon.spy();
         manager.on("check", spy);

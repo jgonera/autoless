@@ -15,6 +15,7 @@ program
   .option('--no-watch', "Compile what needs to be compiled and exit")
   .option('--source-map', "Generate source map files next to css files")
   .option('--autoprefix <browsers>', "Browserslist query, e.g. '> 1%, last 2 versions'")
+  .option('--compile-imports', "Compile imported files, not just the files that import them")
   .parse(process.argv);
 
 var srcDir = program.args[0] || process.cwd();
@@ -25,7 +26,8 @@ var monitorOptions = {
 };
 var compileOptions = {
   sourceMap: program.sourceMap,
-  autoprefix: program.autoprefix
+  autoprefix: program.autoprefix,
+  compileImports: program.compileImports
 };
 
 var statusChar = {
