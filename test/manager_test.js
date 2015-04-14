@@ -62,6 +62,17 @@ describe("Manager", function() {
         });
       });
 
+      it("compiles files that are imported when compileImports is set", function(done) {
+        manager = new Manager('test/less', 'test/css', {compileImports: true});
+        manager.addFiles(files, function() {
+          var spy = sinon.spy(manager.files['test/less/common.less'], 'compile');
+          manager.compileAll(function() {
+            spy.calledOnce.should.be.true;
+            done();
+          });
+        });
+      });
+
       it("fires check event for each file", function(done) {
         var spy = sinon.spy();
         manager.on("check", spy);
