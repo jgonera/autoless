@@ -5,7 +5,7 @@ Another .less file watcher, but this time with:
 
 * Dependency tracking (if a file imported by other files changes, they get
   compiled).
-* Growl notifications (a notification with summary shows up after each time
+* Cross-platform notifications via [node-notifier](https://www.npmjs.com/package/node-notifier) (a notification with summary shows up after each time
   something is compiled).
 
 
