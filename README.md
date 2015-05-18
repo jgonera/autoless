@@ -22,6 +22,8 @@ Usage
         -h, --help               output usage information
         --interval <ms>          How often files are checked for changes
         --no-watch               Compile what needs to be compiled and exit
+        --no-notify              Do not send any notifications
+        --no-sound               Do not play a sound with error notifications
         --source-map             Generate source map files next to css files
         --autoprefix <browsers>  Browserslist query, e.g. '> 1%, last 2 versions'
         --compile-imports        Compile imported files, not just the files that import them
