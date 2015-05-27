@@ -10,10 +10,10 @@
   "repository": { "type": "git", "url": "https://github.com/jgonera/autoless.git" },
   "dependencies": {
     "watch": "0.14.0",
-    "growl": "1.7.0",
     "commander": "2.1.0",
     "less": "1.7.5",
-    "autoprefixer-core": "5.1.7"
+    "autoprefixer-core": "5.1.7",
+    "node-notifier": "^4.2.1"
   },
   "devDependencies": {
     "jshint": "*",

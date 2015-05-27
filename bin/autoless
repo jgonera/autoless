@@ -4,7 +4,7 @@
 var path = require('path');
 var util = require('util');
 var watch = require('watch');
-var growl = require('growl');
+var notifier = require('node-notifier');
 var program = require('commander');
 var less = require('less');
 var Manager = require('../lib/manager');
@@ -13,6 +13,8 @@ program
   .usage('[options] <source_dir> [destination_dir]')
   .option('--interval <ms>', 'How often files are checked for changes', 100)
   .option('--no-watch', "Compile what needs to be compiled and exit")
+  .option('--no-notify', "Do not send any notifications")
+  .option('--no-sound', "Do not play a sound with error notifications")
   .option('--source-map', "Generate source map files next to css files")
   .option('--autoprefix <browsers>', "Browserslist query, e.g. '> 1%, last 2 versions'")
   .option('--compile-imports', "Compile imported files, not just the files that import them")
@@ -76,9 +78,11 @@ function notify(summary) {
     result === 'success' ? summary.length : message.length
   ));
 
-  growl(message.join('\n'), {
+  notifier.notify({
     title: 'LESS',
-    image: path.join(__dirname, '../images', result + '.svg')
+    message: message.join('\n'),
+    icon: path.join(__dirname, '../images', result + '.svg'),
+    sound: program.sound && result === 'error'
   });
 }
 
@@ -117,7 +121,7 @@ watch.createMonitor(srcDir, monitorOptions, function(monitor) {
       monitor.on('created', check);
       monitor.on('removed', manager.remove.bind(manager));
 
-      manager.on('checkSummary', notify);
+      if (program.notify) manager.on('checkSummary', notify);
 
       console.log('Monitoring files in ' + srcDir);
     });
