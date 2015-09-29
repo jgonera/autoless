@@ -26,6 +26,7 @@ Usage
         --no-sound               Do not play a sound with error notifications
         --source-map             Generate source map files next to css files
         --autoprefix <browsers>  Browserslist query, e.g. '> 1%, last 2 versions'
+        --compress               Compress output by removing some whitespaces
         --compile-imports        Compile imported files, not just the files that import them
 
 
