@@ -16,7 +16,7 @@ program
   .option('--no-notify', "Do not send any notifications")
   .option('--no-sound', "Do not play a sound with error notifications")
   .option('--source-map', "Generate source map files next to css files")
-  .option('--compress', "Compress output by removing some whitespaces")
+  .option('--compress', "Compress output by removing whitespace")
   .option('--autoprefix <browsers>', "Browserslist query, e.g. '> 1%, last 2 versions'")
   .option('--compile-imports', "Compile imported files, not just the files that import them")
   .parse(process.argv);
