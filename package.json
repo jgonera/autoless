@@ -11,7 +11,7 @@
   "dependencies": {
     "watch": "0.14.0",
     "commander": "2.1.0",
-    "less": "1.7.5",
+    "less": "2.7.1",
     "autoprefixer-core": "5.1.7",
     "node-notifier": "^4.2.1"
   },
