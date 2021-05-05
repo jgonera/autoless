@@ -1,3 +1,5 @@
+**This project is no longer maintained. I suggest using a bundler like Webpack or Rollup for new projects.**
+
 autoless
 ========
 
